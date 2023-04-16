@@ -1,4 +1,3 @@
-import { validationResult } from 'express-validator';
 import { TypedRequestHandler } from '../@types/requests';
 
 import User from '../models/User';
@@ -8,16 +7,23 @@ export const createLobby: TypedRequestHandler = async (req, res) => {
     try {
         if (!req.user) throw new Error('User not found');
 
-        const user = await User.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id).select('_id nick avatar');
 
         const game = await Game.create({
-            players: [user],
+            players: [
+                {
+                    player: user,
+                    ready: true,
+                },
+            ],
+            creatorId: user?._id,
         });
 
         res.json({
             data: game,
         });
     } catch (err) {
+        console.log(err);
         res.status(500).json({
             errors: [
                 {

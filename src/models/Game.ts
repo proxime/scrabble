@@ -5,13 +5,25 @@ export type GameStatusType = 'lobby' | 'running' | 'finished';
 
 export interface GameType {
     id: ObjectId;
-    players?: UserType[];
+    players?: {
+        player: UserType;
+        ready: boolean;
+    }[];
     createdAt: Date;
     status: GameStatusType;
+    creatorId: ObjectId;
 }
 
 const GameSchema = new Schema<GameType>({
-    players: [{ type: Schema.Types.ObjectId, ref: 'user' }],
+    players: [
+        {
+            player: { type: Schema.Types.ObjectId, ref: 'user' },
+            ready: {
+                type: Boolean,
+                default: false,
+            },
+        },
+    ],
     createdAt: {
         type: Date,
         default: Date.now,
@@ -20,6 +32,7 @@ const GameSchema = new Schema<GameType>({
         type: String,
         default: 'lobby',
     },
+    creatorId: { type: Schema.Types.ObjectId },
 });
 
 const Game = model('game', GameSchema);
